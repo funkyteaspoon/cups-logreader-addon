@@ -1,5 +1,5 @@
 name: "CUPS log reader"
-version: "0.1.0"
+version: "0.1.1"
 slug: "cups_logreader"
 description: "Reads CUPS page_log and publishes per-queue page counts to MQTT"
 arch:
