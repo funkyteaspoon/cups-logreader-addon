@@ -23,11 +23,39 @@ fi
 
 NEW_LINES=$(tail -n +"$((LAST_LINES + 1))" "$LOG_PATH")
 
-echo "$NEW_LINES" | awk '{print $1}' | sort | uniq -c | while read -r count queue; do
-  bashio::log.info "Publishing ${count} pages for queue ${queue}"
+echo "$NEW_LINES" | awk '
+{
+  queue = $1
+  user = $2
+  pagefield = $6
+  copies = $7
+  host = $8
+
+  # "total" lines mean $7 holds the real page count for the whole job
+  if (pagefield == "total") {
+    pages_this_line = copies
+  } else {
+    pages_this_line = 1
+  }
+
+  total_pages[queue] += pages_this_line
+  ts = $4 " " $5
+  gsub(/\[|\]/, "", ts)
+  last_ts[queue] = ts
+  last_user[queue] = user
+  last_host[queue] = host
+}
+END {
+  for (q in total_pages) {
+    print q "\t" total_pages[q] "\t" last_ts[q] "\t" last_user[q] "\t" last_host[q]
+  }
+}' | while IFS=$'\t' read -r queue pages ts user host; do
+  bashio::log.info "Publishing ${pages} pages for queue ${queue}"
+  payload=$(printf '{"pages": %s, "last_printed": "%s", "last_user": "%s", "last_ip": "%s"}' \
+    "$pages" "$ts" "$user" "$host")
   mosquitto_pub -h "$MQTT_HOST" -p "$MQTT_PORT" \
     ${MQTT_USER:+-u "$MQTT_USER"} ${MQTT_PASS:+-P "$MQTT_PASS"} \
-    -t "cups/${queue}/pages_added" -m "$count"
+    -t "cups/${queue}/status" -m "$payload"
 done
 
 echo "$TOTAL_LINES" > "$STATE_FILE"
