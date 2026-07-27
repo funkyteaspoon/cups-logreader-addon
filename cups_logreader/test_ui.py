@@ -10,17 +10,117 @@ QUEUES = os.environ.get("QUEUES", "").split(",")
 PORT = 8099
 
 FORM = """
-<html><body style="font-family:sans-serif;max-width:420px;margin:40px auto;">
-<h2>CUPS Log Reader — Test Publish</h2>
+<html>
+<head>
+<style>
+  :root {{
+    --bg: #f5f5f5;
+    --card-bg: #ffffff;
+    --text: #1a1a1a;
+    --muted: #666666;
+    --border: #dddddd;
+    --accent: #0d6efd;
+    --accent-text: #ffffff;
+  }}
+  html.dark {{
+    --bg: #1a1a1a;
+    --card-bg: #2a2a2a;
+    --text: #e8e8e8;
+    --muted: #a0a0a0;
+    --border: #444444;
+    --accent: #3b82f6;
+    --accent-text: #ffffff;
+  }}
+  body {{
+    font-family: sans-serif;
+    max-width: 420px;
+    margin: 40px auto;
+    padding: 0 16px;
+    background: var(--bg);
+    color: var(--text);
+    transition: background 0.15s, color 0.15s;
+  }}
+  .card {{
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+  }}
+  h2 {{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.2em;
+    margin-top: 0;
+  }}
+  select, input {{
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    margin-top: 4px;
+  }}
+  button[type="submit"] {{
+    background: var(--accent);
+    color: var(--accent-text);
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+  }}
+  .toggle-btn {{
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-size: 0.85em;
+  }}
+  .meta {{
+    color: var(--muted);
+    font-size: 0.85em;
+  }}
+  code {{
+    background: var(--bg);
+    padding: 2px 5px;
+    border-radius: 4px;
+  }}
+</style>
+</head>
+<body>
+<div class="card">
+<h2>Test Publish <button class="toggle-btn" onclick="toggleDark()">🌓 Toggle</button></h2>
 <form method="POST">
-<label>Queue:</label><br>
-<select name="queue">{options}</select><br><br>
-<label>Pages:</label><br>
-<input type="number" name="pages" value="1" min="1" max="200"><br><br>
+<label>Queue:</label>
+<select name="queue">{options}</select>
+<label>Pages:</label>
+<input type="number" name="pages" value="1" min="1" max="200">
+<br><br>
 <button type="submit">Send Test Print</button>
 </form>
-<p style="color:#666;font-size:0.9em">IP: localhost &middot; User: TEST &middot; Time: now</p>
+<p class="meta">IP: localhost &middot; User: TEST &middot; Time: now</p>
 {message}
+</div>
+<script>
+  function applyTheme(dark) {{
+    document.documentElement.classList.toggle('dark', dark);
+  }}
+  function toggleDark() {{
+    const isDark = !document.documentElement.classList.contains('dark');
+    applyTheme(isDark);
+    localStorage.setItem('cups_test_dark', isDark ? '1' : '0');
+  }}
+  (function() {{
+    const stored = localStorage.getItem('cups_test_dark');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    applyTheme(stored === null ? prefersDark : stored === '1');
+  }})();
+</script>
 </body></html>
 """
 
