@@ -16,7 +16,7 @@ map:
   - addon_config:rw
 options:
   cups_addon_slug: "2c6aefcc_cupsik"
-  mqtt_host: "192.168.1.x"
+  mqtt_host: "192.168.x.x"
   mqtt_port: 1883
   mqtt_user: ""
   mqtt_password: ""
@@ -29,30 +29,4 @@ schema:
   mqtt_user: str
   mqtt_password: password
   poll_interval_seconds: int
-  queues: strname: "CUPS log reader"
-version: "0.1.4"
-slug: "cups_logreader"
-description: "Reads CUPS page_log and publishes per-queue page counts to MQTT"
-arch:
-  - aarch64
-  - amd64
-startup: application
-boot: auto
-init: false
-map:
-  - all_addon_configs:ro
-  - addon_config:rw
-options:
-  cups_addon_slug: "???_cupsik"
-  mqtt_host: "192.xxx.xxx.xxx"
-  mqtt_port: 1883
-  mqtt_user: ""
-  mqtt_password: ""
-  poll_interval_seconds: 60
-schema:
-  cups_addon_slug: str
-  mqtt_host: str
-  mqtt_port: int
-  mqtt_user: str
-  mqtt_password: password
-  poll_interval_seconds: int
+  queues: str
